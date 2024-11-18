@@ -1,12 +1,16 @@
 #include "BLEServer_generic.h"
 
+#define BUFFER_SIZE 20
+
 // We start by declaring our server class, we give it a name and a pin to show status
 GenericBLEServer s("BatteryMonitor", LED_BUILTIN);
 
 // Now we must declare services and characteristics. A service can have multiple characteristics.
 //Like a device can have multiple services.
 BLEService batteryService("1101");
-BLEUnsignedCharCharacteristic batteryLevelChar("2101", BLERead | BLENotify);
+BLEStringCharacteristic batteryLevelChar("2101", BLERead | BLENotify, BUFFER_SIZE);
+
+char buf[BUFFER_SIZE];
 
 void setup() {
     Serial.begin(9600);
@@ -29,14 +33,11 @@ void setup() {
 void loop() {
     // We use it to wait for a connection
     s.connect();
+    int battery = 0;
     //While we are connected
     while (s.isConnected()) {
-        int battery = analogRead(A0);
-        int batteryLevel = map(battery, 0, 1023, 0, 100);
-        Serial.print("Battery Level % is now: ");
-        Serial.println(batteryLevel);
         // We set the value of the characteristic to whatever we want, the other will see it
-        batteryLevelChar.writeValue(batteryLevel);
-        delay(200);
+        sprintf(buf, "%d", battery++);
+        batteryLevelChar.writeValue(buf);
     }
 }
