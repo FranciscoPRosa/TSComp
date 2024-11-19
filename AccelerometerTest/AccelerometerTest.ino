@@ -2,7 +2,7 @@
 #include "i2c_generic.h"
 #include "Accelerometer_generic.h"
 
-i2c i2cObj(Wire); // Create i2c object with default Wire instance
+i2c i2cObj(Wire1); // Create i2c object with default Wire instance
 Accelerometer accel(i2cObj); // Pass i2c object to Accelerometer
 
 void setup() {
