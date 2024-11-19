@@ -1,29 +1,29 @@
-#include <Arduino_LSM9DS1.h>
+#include <Wire.h>
+#include "i2c_generic.h"
+#include "Accelerometer_generic.h"
 
-float x, y, z;
-float roll = 0; // Rolamento
+i2c i2cObj(Wire); // Create i2c object with default Wire instance
+Accelerometer accel(i2cObj); // Pass i2c object to Accelerometer
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-  Serial.println("Started");
+    Serial.begin(9600);
+    while (!Serial);
 
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
+    if (!accel.begin()) {
+        Serial.println("Failed to initialize accelerometer!");
+        while (1);
+    }
+
+    Serial.println("Accelerometer initialized.");
 }
 
 void loop() {
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
+    if (accel.accelerationAvailable()) {
+        float angle = 0;
+        angle = accel.getAngle(angle);
 
-    // Calcular o rolamento (roll) usando atan2
-    roll = atan2(y, sqrt(x * x + z * z)) * 180 / PI; // Converter de radianos para graus
-
-    Serial.print("Roll (rolamento): ");
-    Serial.print(roll);
-    Serial.println(" degrees");
-  }
-  delay(1000);
+        Serial.print("Roll angle: ");
+        Serial.println(angle);
+    }
+    delay(500);
 }
