@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "Infrared_generic.h"
 
-#define INPUT_PIN 19 // Pin A0 for the sensor input
-#define OUTPUT_PIN 20 // Pin A1 for generating a voltage of 2.7V
+#define INPUT_PIN 14 // Pin A0 for the sensor input
+#define OUTPUT_PIN 15 // Pin A1 for generating a voltage of 2.7V
 
 InfraredSensor sensor(INPUT_PIN);
 
