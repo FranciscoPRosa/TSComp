@@ -1,6 +1,7 @@
 #include "UltrasonicSensor.h"
 
 static UltrasonicSensor* instance; // Singleton instance for ISR reference
+int sent = 0;
 
 // Constructor
 UltrasonicSensor::UltrasonicSensor(int trig, int echo)
@@ -10,6 +11,7 @@ UltrasonicSensor::UltrasonicSensor(int trig, int echo)
 
 // Send a pulse from the trigger pin
 void UltrasonicSensor::sendPulse() {
+    sent = 1;
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
     digitalWrite(trigPin, HIGH);
@@ -23,10 +25,13 @@ void UltrasonicSensor::echoISRWrapper() {
         if (digitalRead(instance->echoPin) == HIGH) {
             instance->startTime = micros();
         } else {
+          if(sent){
+            sent = 0;
             instance->endTime = micros();
             unsigned long duration = instance->endTime - instance->startTime;
             instance->distance = (duration / 2.0) * (instance->speedOfSound / 1000000.0) * 100;
             instance->sendPulse();
+          }
         }
     }
 }
