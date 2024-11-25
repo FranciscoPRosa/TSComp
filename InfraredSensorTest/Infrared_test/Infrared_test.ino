@@ -17,7 +17,7 @@ void setup() {
   
   // Calculate the analogWrite value for 2.7V (assuming 3.3V reference)
   int pwmValue = (2.7 / 3.3) * 255; // 255 is max for 8-bit PWM
-  analogWrite(OUTPUT_PIN, pwmValue);
+  //analogWrite(OUTPUT_PIN, pwmValue);
 }
 
 void loop() {

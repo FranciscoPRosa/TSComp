@@ -14,7 +14,12 @@ void InfraredSensor::begin() {
 
 // Measure the raw sensor value
 void InfraredSensor::measure() {
-    sensorValue = analogRead(voltPin);
+    long values;
+    // Average to filter some noise
+    for(int i=0; i<128; i++){
+      values += analogRead(voltPin);
+    }
+    sensorValue = values>>7;
     conversion(sensorValue);
 }
 
@@ -50,7 +55,7 @@ size_t InfraredSensor::size() const {
 
 // Add a new DataPoint to the array
 void InfraredSensor::addDataPoint(float distance) {
-    if (dataPointCount >= 10) {
+    if (dataPointCount >= 20) {
         Serial.println("Error: DataPoint storage full");
         return;
     }
