@@ -57,18 +57,22 @@ void Accelerometer::setContinuousMode()
 float Accelerometer::getAngle(float& angle)
 {
     int16_t data[3];
-    float x, y, z;
+    float x=0, y=0, z=0;
 
-    if (!readRegisters(ACCEL_ADDRESS, OUT_X_XL, (uint8_t*)data, sizeof(data))) {
-        x = NAN;
-        y = NAN;
-        z = NAN;
-        return 0;
+    for(int i=0; i<128;i++){
+        if (!readRegisters(ACCEL_ADDRESS, OUT_X_XL, (uint8_t*)data, sizeof(data))) {
+            x = NAN;
+            y = NAN;
+            z = NAN;
+            return 0;
+        }
+        x += data[0];
+        y += data[1];
+        z += data[2];
     }
-
-    x = data[0] * 4.0 / 32768.0;
-    y = data[1] * 4.0 / 32768.0;
-    z = data[2] * 4.0 / 32768.0;
+    x = (x >> 7) * 4.0 / 32768.0;
+    y = (y >> 7) * 4.0 / 32768.0;
+    z = (z >> 7) * 4.0 / 32768.0;
     return calculateRoll(x, y, z); // Convert from radians to degrees
 }
 
