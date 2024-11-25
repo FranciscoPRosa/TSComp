@@ -1,64 +1,56 @@
 #include "Infrared_generic.h"
 
-// Constructor
+// Constructor: initializes the LUT with predefined points
 InfraredSensor::InfraredSensor(int pin)
-    : voltPin(pin), sensorVolt(0), sensorValue(0), dataPointCount(0) {}
+    : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0) {
+    // initialization of the values for the curve
+    // if change is needed cut or add the necessary values
+    curveLUT.addPoint(0, 977);
+    curveLUT.addPoint(2, 638);
+    curveLUT.addPoint(4, 341);
+    curveLUT.addPoint(6, 233);
+    curveLUT.addPoint(8, 178);
+    curveLUT.addPoint(10, 151);
+    curveLUT.addPoint(12, 136);
+    curveLUT.addPoint(14, 126);
+    curveLUT.addPoint(16, 119);
+    curveLUT.addPoint(18, 113);
+    curveLUT.addPoint(20, 110);
+    curveLUT.calculateSlopesAndIntercepts();
+}
 
-// Destructor
 InfraredSensor::~InfraredSensor() {}
 
-// Initialize the sensor
 void InfraredSensor::begin() {
     pinMode(voltPin, INPUT);
 }
 
-// Measure the raw sensor value
+// Measure the sensor value by averaging readings
 void InfraredSensor::measure() {
-    long values;
-    // Average to filter some noise
-    for(int i=0; i<128; i++){
-      values += analogRead(voltPin);
+    long values = 0;
+    for (int i = 0; i < 128; i++) {
+        values += analogRead(voltPin);
     }
-    sensorValue = values>>7;
-    conversion(sensorValue);
+    sensorValue = values >> 7;
+    sensorVolt = sensorValue * (VOLTAGE_REF / MY_ADC_RESOLUTION);
 }
 
-// Convert the raw value to a voltage
-void InfraredSensor::conversion(float value) {
-    sensorVolt = value * (VOLTAGE_REF / MY_ADC_RESOLUTION);
-}
-
-// Get the current sensor voltage
-float InfraredSensor::getVolt() {
+// Get sensor voltage
+float InfraredSensor::getVolt() const {
     return sensorVolt;
 }
 
-// Get the current raw sensor value
-float InfraredSensor::getValue() {
+// Get raw sensor value
+float InfraredSensor::getValue() const {
     return sensorValue;
 }
 
-// Access a specific DataPoint by index
-const DataPoint& InfraredSensor::getDataPoint(size_t index) const {
-    if (index >= dataPointCount) {
-        Serial.println("Error: Index out of range");
-        static DataPoint invalidDataPoint(-1, -1);  // Sentinel value
-        return invalidDataPoint;
-    }
-    return dataPoints[index];
+// Calculate distance based on the measured sensor value
+void InfraredSensor::calculateDistance() {
+    distanceMeas = curveLUT.getDistance(sensorValue);
 }
 
-// Get the number of stored DataPoints
-size_t InfraredSensor::size() const {
-    return dataPointCount;
-}
-
-// Add a new DataPoint to the array
-void InfraredSensor::addDataPoint(float distance) {
-    if (dataPointCount >= 20) {
-        Serial.println("Error: DataPoint storage full");
-        return;
-    }
-    measure();
-    dataPoints[dataPointCount++] = DataPoint(distance, sensorVolt);
+// Get the calculated distance
+float InfraredSensor::getDistanceMeasure() const {
+    return distanceMeas;
 }
