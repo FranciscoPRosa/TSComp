@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <vector>
 
+#define NUM 11
+
 // DataPoint Class
 class DataPoint {
 private:
@@ -16,21 +18,19 @@ public:
 
     float getDistance() const { return distance; }
     float getValue() const { return value; }
-    void display() const;
 };
 
 // LUT Class
 class LUT {
 private:
-    std::vector<DataPoint> points;
-    std::vector<float> slopes;
-    std::vector<float> intercepts;
+    DataPoint points[NUM];
+    float slopes[NUM - 1];
+    float intercepts[NUM - 1];
 
 public:
     void addPoint(float distance, float value);
     void calculateSlopesAndIntercepts();
     float getDistance(float valueRead) const;
-    void display() const;
 };
 
 #endif

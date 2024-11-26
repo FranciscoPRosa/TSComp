@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define USS_MEANS 32
+
 class UltrasonicSensor {
   private:
       int trigPin;

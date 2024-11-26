@@ -28,13 +28,17 @@ void loop() {
   float voltage = sensor.getVolt();
   float rawValue = sensor.getValue();
 
+  /*
   Serial.print("Measured Voltage: ");
   Serial.print(voltage);
   Serial.println(" V");
-
+  */
   Serial.print("Raw Sensor Value: ");
   Serial.println(rawValue);
 
+  //sensor.calculateDistance();
+  //float d = sensor.getDistanceMeasure();
+  //Serial.print("Distance: "); Serial.println(d);
   // Simulate a delay between measurements
-  delay(1000);
+  delay(500);
 }

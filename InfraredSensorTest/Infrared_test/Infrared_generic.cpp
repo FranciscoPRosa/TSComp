@@ -5,15 +5,15 @@ InfraredSensor::InfraredSensor(int pin)
     : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
-    curveLUT.addPoint(0, 977);
-    curveLUT.addPoint(2, 638);
-    curveLUT.addPoint(4, 341);
-    curveLUT.addPoint(6, 233);
-    curveLUT.addPoint(8, 178);
-    curveLUT.addPoint(10, 151);
-    curveLUT.addPoint(12, 136);
-    curveLUT.addPoint(14, 126);
-    curveLUT.addPoint(16, 119);
+    curveLUT.addPoint(0, 963);
+    curveLUT.addPoint(2, 660);
+    curveLUT.addPoint(4, 353);
+    curveLUT.addPoint(6, 270);
+    curveLUT.addPoint(8, 222);
+    curveLUT.addPoint(10, 201);
+    curveLUT.addPoint(12, 194);
+    curveLUT.addPoint(14, 182);
+    curveLUT.addPoint(16, 172);
     curveLUT.addPoint(18, 113);
     curveLUT.addPoint(20, 110);
     curveLUT.calculateSlopesAndIntercepts();

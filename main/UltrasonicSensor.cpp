@@ -2,6 +2,8 @@
 
 static UltrasonicSensor* instance; // Singleton instance for ISR reference
 int sent = 0;
+float distArr[USS_MEANS] = {0};
+int distIndex = 0;
 
 // Constructor
 UltrasonicSensor::UltrasonicSensor(int trig, int echo)
@@ -31,6 +33,9 @@ void UltrasonicSensor::echoISRWrapper() {
             unsigned long duration = instance->endTime - instance->startTime;
             instance->distance = (duration / 2.0) * (instance->speedOfSound / 1000000.0) * 100;
             instance->sendPulse();
+
+            distArr[distIndex] = instance->distance;
+            distIndex++; distIndex %= USS_MEANS;
           }
         }
     }
@@ -46,5 +51,9 @@ void UltrasonicSensor::begin() {
 
 // Get the latest distance measurement
 float UltrasonicSensor::getDistance() {
-    return distance;
+    float aux = 0;
+    for(int i = 0; i < USS_MEANS; i++){
+      aux += distArr[i];
+    }
+    return aux / USS_MEANS;
 }
