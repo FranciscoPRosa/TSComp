@@ -1,13 +1,5 @@
 #include "LUT.h"
 
-// DataPoint display function
-void DataPoint::display() const {
-    Serial.print("Distance: ");
-    Serial.print(distance);
-    Serial.print(", Value: ");
-    Serial.println(value);
-}
-
 // Add a point to the LUT
 void LUT::addPoint(float distance, float value) {
     static size_t index = 0;

@@ -4,6 +4,8 @@
 #define INPUT_PIN 14 // Pin A0 for the sensor input
 #define OUTPUT_PIN 15 // Pin A1 for generating a voltage of 2.7V
 
+#define TEST 0
+
 InfraredSensor sensor(INPUT_PIN);
 
 void setup() {
@@ -33,12 +35,14 @@ void loop() {
   Serial.print(voltage);
   Serial.println(" V");
   */
+#if TEST
   Serial.print("Raw Sensor Value: ");
   Serial.println(rawValue);
-
-  //sensor.calculateDistance();
-  //float d = sensor.getDistanceMeasure();
-  //Serial.print("Distance: "); Serial.println(d);
+#else
+  sensor.calculateDistance();
+  float d = sensor.getDistanceMeasure();
+  Serial.print("Distance: "); Serial.println(d);
+#endif
   // Simulate a delay between measurements
   delay(500);
 }
