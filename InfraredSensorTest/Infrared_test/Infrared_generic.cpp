@@ -2,7 +2,7 @@
 
 // Constructor: initializes the LUT with predefined points
 InfraredSensor::InfraredSensor(int pin)
-    : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0) {
+    : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offset(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
     curveLUT.addPoint(0, 971);
@@ -48,10 +48,16 @@ float InfraredSensor::getValue() const {
 
 // Calculate distance based on the measured sensor value
 void InfraredSensor::calculateDistance() {
-    distanceMeas = curveLUT.getDistance(sensorValue);
+    distanceMeas = offset + curveLUT.getDistance(sensorValue);
 }
 
 // Get the calculated distance
 float InfraredSensor::getDistanceMeasure() const {
     return distanceMeas;
+}
+
+float InfraredSensor::updateOffset(float usDistance){
+  measure();
+  calculateDistance();
+  offset = usDistance - distanceMeas;
 }

@@ -10,6 +10,7 @@ private:
     float sensorVolt;
     float sensorValue;
     float distanceMeas;
+    float offset;
     LUT curveLUT;
 
     static constexpr float VOLTAGE_REF = 3.3;
@@ -25,6 +26,7 @@ public:
     float getValue() const;
     void calculateDistance();
     float getDistanceMeasure() const;
+    float updateOffset(float usDistance);
 };
 
 #endif
