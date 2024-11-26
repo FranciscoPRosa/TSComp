@@ -5,6 +5,8 @@
 #include "i2c_generic.h"
 #include "Accelerometer_generic.h"
 
+#include "Infrared_generic.h"
+
 // Ultrasonic Sensor pins
 #define TRIG_PIN 9
 #define ECHO_PIN 2

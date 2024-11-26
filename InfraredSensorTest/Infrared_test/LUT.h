@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <vector>
 
-#define NUM 12
+#define NUM 10
 
 // DataPoint Class
 class DataPoint {
