@@ -4,7 +4,7 @@
 #define INPUT_PIN 14 // Pin A0 for the sensor input
 #define OUTPUT_PIN 15 // Pin A1 for generating a voltage of 2.7V
 
-#define TEST 0
+#define TEST 1
 
 InfraredSensor sensor(INPUT_PIN);
 

@@ -16,6 +16,9 @@
 #define BLE_NAME "Ultrasonic Sensor"
 #define BUFFER_SIZE 30
 
+// Infrared definitions
+#define INPUT_PIN 14
+
 // BLE Server Objects
 GenericBLEServer bleServer(BLE_NAME, STATUS_LED);
 BLEService ultrasonicService("19B10000-E8F2-537E-4F6C-D104768A1214");
@@ -27,6 +30,9 @@ UltrasonicSensor ultrasonic(TRIG_PIN, ECHO_PIN);
 // Accelerometer Object
 i2c i2cObj(Wire1); // Create i2c object with default Wire instance
 Accelerometer accel(i2cObj); // Pass i2c object to Accelerometer
+
+// Infrared Sensor
+InfraredSensor sensor(INPUT_PIN);
 
 float compensateAngle(float distance){
   float angle = 0;
@@ -57,27 +63,34 @@ void setup() {
 
   // Begin the measuring sequence
   ultrasonic.begin();
+  sensor.begin();
 }
 
 void loop() {
   float distance = 0;
   char buffer[BUFFER_SIZE];
 
-  float distance_angle = 0;
+  float distance_angle = 0, distance_ir = 0;
 
 #if BLE
   bleServer.connect();
   while (bleServer.isConnected()) {
     distance = ultrasonic.getDistance();
     distance_angle = compensateAngle(distance);
-    sprintf(buffer, "%.2f | %.2f cm | angle %.2f", distance_angle, distance, angle);
+    sprintf(buffer, "%.2f | %.2f cm | angl", distance_angle, distance);
     Serial.println(buffer);
     distanceCharacteristic.writeValue(buffer);
   }
 #else
   distance = ultrasonic.getDistance();
   distance_angle = compensateAngle(distance);
-  sprintf(buffer, "%.2f | %.2f cm | angle %.2f", distance_angle, distance, angle);
+
+  sensor.measure();
+  sensor.calculateDistance();
+  distance_ir = sensor.getDistanceMeasure();
+
+
+  sprintf(buffer, "%.2f | %.2f cm | IR: %.2f cm", distance_angle, (distance_angle+distance_ir)/2.0, distance_ir);
   Serial.println(buffer);
   delay(50);
 #endif
