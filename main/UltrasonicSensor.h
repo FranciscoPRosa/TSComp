@@ -2,6 +2,7 @@
 #define ULTRASONIC_SENSOR_H
 
 #include <Arduino.h>
+#include "Q16_16.h"
 
 #define USS_MEANS 32
 
@@ -11,8 +12,6 @@ class UltrasonicSensor {
       int echoPin;
       volatile unsigned long startTime;
       volatile unsigned long endTime;
-      volatile float distance;
-      const float speedOfSound = 343.0; // Speed of sound in air (m/s)
 
       static void echoISRWrapper(); // Static wrapper for ISR
       void sendPulse();

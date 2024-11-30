@@ -4,6 +4,7 @@
 #include "i2c_generic.h" // Include the i2c class definition
 #include <Arduino.h>
 #include <Wire.h>
+#include "Q16_16.h"
 
 class Accelerometer {
 public:

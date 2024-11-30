@@ -8,6 +8,8 @@
 #define OUT_X_XL           0x28
 #define CTRL_REG1_G        0x10
 
+Q16_16 k = Q16_16::fromFloat(1.0 / 32768.0);
+
 Accelerometer::Accelerometer(i2c& i2cObj) :
     continuousMode(false), _i2c(&i2cObj) // Initialize the i2c pointer
 {
@@ -57,19 +59,26 @@ void Accelerometer::setContinuousMode()
 float Accelerometer::getAngle(float& angle)
 {
     int16_t data[3];
-    float x, y, z;
+    Q16_16 x, y, z;
 
-    if (!readRegisters(ACCEL_ADDRESS, OUT_X_XL, (uint8_t*)data, sizeof(data))) {
-        x = NAN;
-        y = NAN;
-        z = NAN;
-        return 0;
+    Q16_16 qX = Q16_16::fromInt(0), qY = Q16_16::fromInt(0), qZ = Q16_16::fromInt(0);
+
+    for(int i = 0; i < 4; i++){
+        if (!readRegisters(ACCEL_ADDRESS, OUT_X_XL, (uint8_t*)data, sizeof(data))) {
+            x = NAN;
+            y = NAN;
+            z = NAN;
+            return 0;
+        }
+        qX = qX + Q16_16::fromInt(data[0]);
+        qY = qY + Q16_16::fromInt(data[1]);
+        qZ = qZ + Q16_16::fromInt(data[2]);
     }
 
-    x = data[0] * 4.0 / 32768.0;
-    y = data[1] * 4.0 / 32768.0;
-    z = data[2] * 4.0 / 32768.0;
-    return calculateRoll(x, y, z); // Convert from radians to degrees
+    x = qX * k;
+    y = qY * k;
+    z = qZ * k;
+    return calculateRoll(x.toFloat()/4, y.toFloat()/4, z.toFloat()/4); // Convert from radians to degrees
 }
 
 int Accelerometer::accelerationAvailable()
