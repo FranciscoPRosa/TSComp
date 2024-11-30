@@ -9,6 +9,7 @@
 #define CTRL_REG1_G        0x10
 
 Q16_16 k = Q16_16::fromFloat(1.0 / 32768.0);
+float offset = 0.0;
 
 Accelerometer::Accelerometer(i2c& i2cObj) :
     continuousMode(false), _i2c(&i2cObj) // Initialize the i2c pointer
@@ -34,6 +35,8 @@ int Accelerometer::begin()
 
     writeRegister(ACCEL_ADDRESS, CTRL_REG1_G, 0x78); // 119 Hz, 2000 dps, 16 Hz BW
     writeRegister(ACCEL_ADDRESS, CTRL_REG6_XL, 0x70); // 119 Hz, 4g
+
+    offset = getAngle(offset);
 
     return 1;
 }
@@ -78,7 +81,7 @@ float Accelerometer::getAngle(float& angle)
     x = qX * k;
     y = qY * k;
     z = qZ * k;
-    return calculateRoll(x.toFloat()/4, y.toFloat()/4, z.toFloat()/4); // Convert from radians to degrees
+    return calculateRoll(x.toFloat()/4, y.toFloat()/4, z.toFloat()/4)-offset; // Convert from radians to degrees
 }
 
 int Accelerometer::accelerationAvailable()
