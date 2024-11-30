@@ -13,7 +13,7 @@ class intFP {
 public:    
     int32_t fix = 0;
     intFP(){}
-    //intFP(intFP& val) {fix = val.fix;}
+    intFP(const intFP& val) {fix = val.fix;}
     intFP(uint32_t val) {fix = FIX_UINT(val);}
     intFP(int32_t val) {fix = FIX_INT(val);}
     intFP(uint16_t val) {fix = FIX_UINT(val);}
@@ -67,7 +67,7 @@ public:
     intFP operator - (int8_t val) {return intFP(*this) -= val;}
     intFP operator - (double val) {return intFP(*this) -= val;}
 
-    intFP& operator *= (intFP val) {fix *= val.fix; return *this;}
+    intFP& operator *= (intFP val) {fix = (fix * val.fix) / FIX_MUL; return *this;}
     intFP& operator *= (uint32_t val) {fix *= (val); return *this;}
     intFP& operator *= (int32_t val) {fix *= (val); return *this;}
     intFP& operator *= (uint16_t val) {fix *= (val); return *this;}
@@ -85,7 +85,7 @@ public:
     intFP operator * (int8_t val) {return intFP(*this) *= val;}
     intFP operator * (double val) {return intFP(*this) *= val;}
 
-    intFP& operator /= (intFP val) {fix /= val.fix; return *this;}
+    intFP& operator /= (intFP val) {fix = FIX_INT(fix)/val.fix; return *this;}
     intFP& operator /= (uint32_t val) {fix /= (val); return *this;}
     intFP& operator /= (int32_t val) {fix /= (val); return *this;}
     intFP& operator /= (uint16_t val) {fix /= (val); return *this;}
