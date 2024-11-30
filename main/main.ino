@@ -19,6 +19,9 @@
 // Infrared definitions
 #define INPUT_PIN 14
 
+//General definitions
+#define DEGREES_TO_RADIANS 0.0174532925
+
 // BLE Server Objects
 GenericBLEServer bleServer(BLE_NAME, STATUS_LED);
 BLEService ultrasonicService("19B10000-E8F2-537E-4F6C-D104768A1214");
@@ -35,9 +38,25 @@ Accelerometer accel(i2cObj); // Pass i2c object to Accelerometer
 InfraredSensor sensor(INPUT_PIN);
 
 float compensateAngle(float distance){
+  //return distance;
   float angle = 0;
   if(accel.accelerationAvailable()) angle = accel.getAngle(angle);
-  return distance * cos(angle * 0.0174532925);
+  return distance * cos(angle * DEGREES_TO_RADIANS);
+}
+
+float measure(){
+  float distanceIR = 0, distanceUSS = 0;
+
+  distanceUSS = ultrasonic.getDistance();
+  sensor.measure();
+  sensor.calculateDistance();
+  distanceIR = sensor.getDistanceMeasure();
+
+  //Serial.println("USS: " + String(distanceUSS) + " | IR: " + String(distanceIR) + " | Mean: " + String(compensateAngle(distanceIR + distanceUSS) / 2.0));
+
+  if(distanceIR < 4.0) return compensateAngle(distanceIR);
+  if(distanceUSS > 13.5) return compensateAngle(distanceUSS);
+  return compensateAngle((distanceIR + distanceUSS) / 2.0);
 }
 
 void setup() {
@@ -70,27 +89,19 @@ void loop() {
   float distance = 0;
   char buffer[BUFFER_SIZE];
 
-  float distance_angle = 0, distance_ir = 0;
-
 #if BLE
   bleServer.connect();
   while (bleServer.isConnected()) {
-    distance = ultrasonic.getDistance();
-    distance_angle = compensateAngle(distance);
-    sprintf(buffer, "%.2f | %.2f cm | angl", distance_angle, distance);
+    distance = measure();
+
+    sprintf(buffer, "%.2f cm", distance);
     Serial.println(buffer);
     distanceCharacteristic.writeValue(buffer);
   }
 #else
-  distance = ultrasonic.getDistance();
-  distance_angle = compensateAngle(distance);
+  distance = measure();
 
-  sensor.measure();
-  sensor.calculateDistance();
-  distance_ir = sensor.getDistanceMeasure();
-
-
-  sprintf(buffer, "%.2f | %.2f cm | IR: %.2f cm", distance_angle, (distance_angle+distance_ir)/2.0, distance_ir);
+  sprintf(buffer, "%.2f cm", distance);
   Serial.println(buffer);
   delay(50);
 #endif
