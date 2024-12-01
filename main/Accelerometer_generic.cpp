@@ -37,7 +37,7 @@ int Accelerometer::begin()
     writeRegister(ACCEL_ADDRESS, CTRL_REG6_XL, 0x70); // 119 Hz, 4g
 
     getAngle();
-    offset = calculateRoll(x,y,z);
+    offset = calculateRoll();
 
     return 1;
 }
@@ -60,7 +60,7 @@ void Accelerometer::setContinuousMode()
     continuousMode = true;
 }
 
-void Accelerometer::getAngle()
+bool Accelerometer::getAngle()
 {
     int16_t data[3];
      x, y, z;
@@ -83,7 +83,7 @@ void Accelerometer::getAngle()
     y = qY * k;
     z = qZ * k;
     //return calculateRoll(x.toFloat()/4, y.toFloat()/4, z.toFloat()/4)-offset; // Convert from radians to degrees
-    return;
+    return 1;
 }
 
 int Accelerometer::accelerationAvailable()
@@ -102,9 +102,9 @@ int Accelerometer::accelerationAvailable()
 }
 
 // Private helper functions
-float Accelerometer::calculateRoll(Q16_16 x, Q16_16 y, Q16_16 z)
+float Accelerometer::calculateRoll()
 {
-    return atan2(y, sqrt(x.toFloat()/4 * x.toFloat()/4 + z.toFloat()/4 * z.toFloat()/4)) * 180 / PI-offset;
+    return atan2(y.toFloat()/4, sqrt(x.toFloat()/4 * x.toFloat()/4 + z.toFloat()/4 * z.toFloat()/4)) * 180 / PI-offset;
 }
 
 int Accelerometer::readRegister(uint8_t slaveAddress, uint8_t address)

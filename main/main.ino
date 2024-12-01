@@ -40,7 +40,10 @@ InfraredSensor sensor(INPUT_PIN);
 float compensateAngle(float distance){
   //return distance;
   float angle = 0;
-  if(accel.accelerationAvailable()) angle = accel.getAngle(angle);
+  if(accel.accelerationAvailable()){
+    accel.getAngle();
+    angle = accel.calculateRoll();
+  }
   return distance * cos(angle * DEGREES_TO_RADIANS);
 }
 

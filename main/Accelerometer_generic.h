@@ -14,9 +14,9 @@ public:
     int begin();
     void end();
     void setContinuousMode();
-    void getAngle();
+    bool getAngle();
     int accelerationAvailable();
-    float calculateRoll(Q16_16 x, Q16_16 y, Q16_16 z);
+    float calculateRoll();
 
 private:
     bool continuousMode;
