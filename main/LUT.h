@@ -31,6 +31,7 @@ public:
     void addPoint(float distance, float value);
     void calculateSlopesAndIntercepts();
     float getDistance(float valueRead) const;
+    float getCorrValue(float distanceRead) const;
 };
 
 #endif

@@ -8,10 +8,13 @@ class InfraredSensor {
 private:
     int voltPin;
     float sensorVolt;
-    float sensorValue;
+    int sensorValue;
     float distanceMeas;
-    float offset;
+    int offsetColor;
     LUT curveLUT;
+    LUT colorOffset;
+    LUT blackOffset;
+    LUT offsetCurve;
 
     static constexpr float VOLTAGE_REF = 3.3;
     static constexpr int MY_ADC_RESOLUTION = 1023;
@@ -23,10 +26,10 @@ public:
     void begin();
     void measure();
     float getVolt() const;
-    float getValue() const;
+    int getValue() const;
     void calculateDistance();
     float getDistanceMeasure() const;
-    float updateOffset(float usDistance);
+    void updateOffset(float usDistance);
 };
 
 #endif

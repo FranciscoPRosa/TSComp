@@ -2,7 +2,7 @@
 
 // Constructor: initializes the LUT with predefined points
 InfraredSensor::InfraredSensor(int pin)
-    : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offset(0) {
+    : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offsetColor(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
     curveLUT.addPoint(0, 931);
@@ -31,6 +31,35 @@ InfraredSensor::InfraredSensor(int pin)
     curveLUT.addPoint(40, 147);
     curveLUT.addPoint(50, 146);
     curveLUT.calculateSlopesAndIntercepts();
+    // using Cleaver (Metal) for the first approximation
+    // Distances taken for the curve: 0,1,2,3,4,5,8,10,12,16,20
+    colorOffset.addPoint(995, 931);
+    colorOffset.addPoint(981, 824);
+    colorOffset.addPoint(655, 623);
+    colorOffset.addPoint(447, 441);
+    colorOffset.addPoint(374, 345);
+    colorOffset.addPoint(319, 290);
+    colorOffset.addPoint(241, 216);
+    colorOffset.addPoint(215, 191);
+    colorOffset.addPoint(195, 177);
+    colorOffset.addPoint(177, 164);
+    colorOffset.addPoint(166, 157);
+    colorOffset.calculateSlopesAndIntercepts();
+
+    // Black plastic for the other calibration curve
+    blackOffset.addPoint(385,931);
+    blackOffset.addPoint(250,824);
+    blackOffset.addPoint(203,623);
+    blackOffset.addPoint(177,441);
+    blackOffset.addPoint(166,345);
+    blackOffset.addPoint(161,290);
+    blackOffset.addPoint(156,216);
+    blackOffset.addPoint(153,191);
+    blackOffset.addPoint(152,177);
+    blackOffset.addPoint(154,164);
+    blackOffset.addPoint(151,157);
+    blackOffset.calculateSlopesAndIntercepts();
+
 }
 
 InfraredSensor::~InfraredSensor() {}
@@ -55,13 +84,14 @@ float InfraredSensor::getVolt() const {
 }
 
 // Get raw sensor value
-float InfraredSensor::getValue() const {
+int InfraredSensor::getValue() const {
     return sensorValue;
 }
 
 // Calculate distance based on the measured sensor value
 void InfraredSensor::calculateDistance() {
-    distanceMeas = offset + curveLUT.getDistance(sensorValue);
+    int valueFinal = offsetCurve.getDistance(sensorValue+offsetColor);
+    distanceMeas = curveLUT.getDistance(valueFinal);
 }
 
 // Get the calculated distance
@@ -69,8 +99,16 @@ float InfraredSensor::getDistanceMeasure() const {
     return distanceMeas;
 }
 
-float InfraredSensor::updateOffset(float usDistance){
-  measure();
-  calculateDistance();
-  offset = usDistance - distanceMeas;
+void InfraredSensor::updateOffset(float usDistance){
+    int ogValue, calibValue;
+    measure();
+    calculateDistance();
+    ogValue = curveLUT.getCorrValue(usDistance);
+    if((ogValue-sensorValue)<0){
+        offsetCurve = blackOffset;
+    } else {
+        offsetCurve = colorOffset;
+    }
+    calibValue = offsetCurve.getCorrValue(ogValue);
+    offsetColor = calibValue - sensorValue;
 }
