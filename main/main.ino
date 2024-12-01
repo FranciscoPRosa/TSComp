@@ -11,9 +11,9 @@
 #define TRIG_PIN 9
 #define ECHO_PIN 2
 // BLE Server variables
-#define BLE 0
+#define BLE 1
 #define STATUS_LED LED_BUILTIN
-#define BLE_NAME "Ultrasonic Sensor"
+#define BLE_NAME "SensorSystemG4"
 #define BUFFER_SIZE 30
 
 // Infrared definitions
