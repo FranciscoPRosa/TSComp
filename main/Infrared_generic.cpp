@@ -5,31 +5,21 @@ InfraredSensor::InfraredSensor(int pin)
     : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offsetColor(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
-    curveLUT.addPoint(0, 931);
-    curveLUT.addPoint(1, 824);
-    curveLUT.addPoint(2, 623);
-    curveLUT.addPoint(3, 441);
-    curveLUT.addPoint(4, 345);
-    curveLUT.addPoint(5, 290);
-    curveLUT.addPoint(6, 254);
-    curveLUT.addPoint(7, 233);
-    curveLUT.addPoint(8, 216);
-    curveLUT.addPoint(9, 201);
-    curveLUT.addPoint(10, 191);
-    curveLUT.addPoint(11, 184);
-    curveLUT.addPoint(12, 177);
-    curveLUT.addPoint(13, 174);
-    curveLUT.addPoint(14, 168);
-    curveLUT.addPoint(15, 166);
-    curveLUT.addPoint(16, 164);
-    curveLUT.addPoint(17, 161);
-    curveLUT.addPoint(18, 159);
-    curveLUT.addPoint(19, 158);
-    curveLUT.addPoint(20, 157);
-    curveLUT.addPoint(25, 153);
-    curveLUT.addPoint(30, 150);
-    curveLUT.addPoint(40, 147);
-    curveLUT.addPoint(50, 146);
+    curveLUT.addPoint(0, 1001);
+    curveLUT.addPoint(1, 982);
+    curveLUT.addPoint(2, 647);
+    curveLUT.addPoint(3, 473);
+    curveLUT.addPoint(4, 373);
+    curveLUT.addPoint(5, 315);
+    curveLUT.addPoint(6, 278);
+    curveLUT.addPoint(7, 246);
+    curveLUT.addPoint(8, 226);
+    curveLUT.addPoint(9, 213);
+    curveLUT.addPoint(10, 201);
+    curveLUT.addPoint(12, 185);
+    curveLUT.addPoint(16, 167);
+    curveLUT.addPoint(20, 156);
+
     curveLUT.calculateSlopesAndIntercepts();
     // using Cleaver (Metal) for the first approximation
     // Distances taken for the curve: 0,1,2,3,4,5,8,10,12,16,20
@@ -91,7 +81,7 @@ int InfraredSensor::getValue() const {
 // Calculate distance based on the measured sensor value
 void InfraredSensor::calculateDistance() {
     int valueFinal = offsetCurve.getDistance(sensorValue+offsetColor);
-    distanceMeas = curveLUT.getDistance(sensorValue);
+    distanceMeas = curveLUT.getDistance(valueFinal);
 }
 
 // Get the calculated distance
@@ -104,7 +94,7 @@ void InfraredSensor::updateOffset(float usDistance){
     measure();
     calculateDistance();
     ogValue = curveLUT.getCorrValue(usDistance);
-    if((ogValue-sensorValue)<0){
+    if((ogValue-sensorValue)>0){
         offsetCurve = blackOffset;
     } else {
         offsetCurve = colorOffset;
