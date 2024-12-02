@@ -37,15 +37,15 @@ float LUT::getDistance(float valueRead) const {
 // Interpolate sensor value for a given distance
 float LUT::getCorrValue(float distanceRead) const {
     // Check if the distance is outside the LUT range
-    if (distanceRead < points[size - 1].getDistance()) {
+    if (distanceRead >= points[size - 1].getDistance()) {
         return points[size - 1].getValue();
-    } else if (distanceRead > points[0].getDistance()) {
+    } else if (distanceRead <= points[0].getDistance()) {
         return points[0].getValue();
     }
     
     // Iterate through the points to find the correct segment
     for (size_t i = 0; i < size - 1; ++i) {
-        if (points[i].getDistance() >= distanceRead && distanceRead >= points[i + 1].getDistance()) {
+        if (points[i].getDistance() >= distanceRead && distanceRead <= points[i + 1].getDistance()) {
             // Reverse interpolation formula: value = (distance - intercept) / slope
             return (distanceRead - intercepts[i]) / slopes[i];
         }

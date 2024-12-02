@@ -52,7 +52,7 @@ float measure(){
 
   distanceUSS = ultrasonic.getDistance();
 
-  if(distanceUSS < 8.2 && distanceUSS > 7.8) sensor.updateOffset(distanceUSS);
+  if(distanceUSS < 4.2 && distanceUSS > 3.8) sensor.updateOffset(distanceUSS);
 
   sensor.measure();
   sensor.calculateDistance();

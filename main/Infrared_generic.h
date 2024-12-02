@@ -14,7 +14,7 @@ private:
     LUT curveLUT;
     LUT colorOffset;
     LUT blackOffset;
-    LUT offsetCurve;
+    LUT *offsetCurve;
 
     static constexpr float VOLTAGE_REF = 3.3;
     static constexpr int MY_ADC_RESOLUTION = 1023;

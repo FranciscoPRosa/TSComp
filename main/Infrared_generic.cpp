@@ -5,51 +5,57 @@ InfraredSensor::InfraredSensor(int pin)
     : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offsetColor(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
-    curveLUT.addPoint(0, 1001);
-    curveLUT.addPoint(1, 982);
-    curveLUT.addPoint(2, 647);
-    curveLUT.addPoint(3, 473);
-    curveLUT.addPoint(4, 373);
-    curveLUT.addPoint(5, 315);
-    curveLUT.addPoint(6, 278);
-    curveLUT.addPoint(7, 246);
-    curveLUT.addPoint(8, 226);
-    curveLUT.addPoint(9, 213);
-    curveLUT.addPoint(10, 201);
-    curveLUT.addPoint(12, 185);
-    curveLUT.addPoint(16, 167);
-    curveLUT.addPoint(20, 156);
-
+    curveLUT.addPoint(0, 986);
+    curveLUT.addPoint(1, 964);
+    curveLUT.addPoint(2, 633);
+    curveLUT.addPoint(3, 474);
+    curveLUT.addPoint(4, 361);
+    curveLUT.addPoint(5, 299);
+    curveLUT.addPoint(6, 257);
+    curveLUT.addPoint(7, 236);
+    curveLUT.addPoint(8, 220);
+    curveLUT.addPoint(9, 209);
+    curveLUT.addPoint(10, 194);
+    curveLUT.addPoint(12, 179);
+    curveLUT.addPoint(16, 163);
+    curveLUT.addPoint(20, 155);
     curveLUT.calculateSlopesAndIntercepts();
     // using Cleaver (Metal) for the first approximation
     // Distances taken for the curve: 0,1,2,3,4,5,8,10,12,16,20
-    colorOffset.addPoint(995, 931);
-    colorOffset.addPoint(981, 824);
-    colorOffset.addPoint(655, 623);
-    colorOffset.addPoint(447, 441);
-    colorOffset.addPoint(374, 345);
-    colorOffset.addPoint(319, 290);
-    colorOffset.addPoint(241, 216);
-    colorOffset.addPoint(215, 191);
-    colorOffset.addPoint(195, 177);
-    colorOffset.addPoint(177, 164);
-    colorOffset.addPoint(166, 157);
+    colorOffset.addPoint(0, 980);
+    colorOffset.addPoint(1, 645);
+    colorOffset.addPoint(2, 450);
+    colorOffset.addPoint(3, 328);
+    colorOffset.addPoint(4, 273);
+    colorOffset.addPoint(5, 236);
+    colorOffset.addPoint(6, 213);
+    colorOffset.addPoint(7, 197);
+    colorOffset.addPoint(8, 185);
+    colorOffset.addPoint(9, 176);
+    colorOffset.addPoint(10, 171);
+    colorOffset.addPoint(12, 162);
+    colorOffset.addPoint(16, 152);
+    colorOffset.addPoint(20, 147);
     colorOffset.calculateSlopesAndIntercepts();
 
     // Black plastic for the other calibration curve
-    blackOffset.addPoint(385,931);
-    blackOffset.addPoint(250,824);
-    blackOffset.addPoint(203,623);
-    blackOffset.addPoint(177,441);
-    blackOffset.addPoint(166,345);
-    blackOffset.addPoint(161,290);
-    blackOffset.addPoint(156,216);
-    blackOffset.addPoint(153,191);
-    blackOffset.addPoint(152,177);
-    blackOffset.addPoint(154,164);
-    blackOffset.addPoint(151,157);
+    blackOffset.addPoint(0,246);
+    blackOffset.addPoint(1,199);
+    blackOffset.addPoint(2,177);
+    blackOffset.addPoint(3,163);
+    blackOffset.addPoint(4,156);
+    blackOffset.addPoint(5,150);
+    blackOffset.addPoint(6,147);
+    blackOffset.addPoint(7,145);
+    blackOffset.addPoint(8,143);
+    blackOffset.addPoint(9,142);
+    blackOffset.addPoint(10,141);
+    blackOffset.addPoint(12,139);
+    blackOffset.addPoint(16,138);
+    blackOffset.addPoint(20,137);
     blackOffset.calculateSlopesAndIntercepts();
 
+    offsetCurve = &curveLUT;
 }
 
 InfraredSensor::~InfraredSensor() {}
@@ -80,8 +86,7 @@ int InfraredSensor::getValue() const {
 
 // Calculate distance based on the measured sensor value
 void InfraredSensor::calculateDistance() {
-    int valueFinal = offsetCurve.getDistance(sensorValue+offsetColor);
-    distanceMeas = curveLUT.getDistance(valueFinal);
+    distanceMeas = (*offsetCurve).getDistance(sensorValue);
 }
 
 // Get the calculated distance
@@ -90,15 +95,26 @@ float InfraredSensor::getDistanceMeasure() const {
 }
 
 void InfraredSensor::updateOffset(float usDistance){
-    int ogValue, calibValue;
     measure();
-    calculateDistance();
-    ogValue = curveLUT.getCorrValue(usDistance);
-    if((ogValue-sensorValue)>0){
-        offsetCurve = blackOffset;
+    int ogValue = abs(curveLUT.getCorrValue(usDistance)-sensorValue);
+    int colorValue = abs(colorOffset.getCorrValue(usDistance)-sensorValue);
+    int blackValue = abs(blackOffset.getCorrValue(usDistance)-sensorValue);
+
+    if(min(ogValue,colorValue)==ogValue){
+        if(min(ogValue,blackValue)==ogValue){
+            offsetCurve = &curveLUT;
+            Serial.println("Using White!");
+        } else {
+            offsetCurve = &blackOffset;
+            Serial.println("Uaing Black!");
+        }
     } else {
-        offsetCurve = colorOffset;
-    }
-    calibValue = offsetCurve.getCorrValue(ogValue);
-    offsetColor = calibValue - sensorValue;
+        if(min(colorValue, blackValue)==colorValue){
+            offsetCurve = &colorOffset;
+            Serial.println("Uaing Color!");
+        } else {
+            offsetCurve = &blackOffset;
+            Serial.println("Uaing Black!");
+        }
+    }   
 }
