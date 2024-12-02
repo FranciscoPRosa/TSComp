@@ -4,14 +4,13 @@
 #include <Arduino.h>
 #include <vector>
 
-#define NUM 25
+#define NUM 30
 
 // DataPoint Class
 class DataPoint {
 private:
     float distance;
     float value;
-
 public:
     DataPoint() : distance(0), value(0) {}  // Default constructor
     DataPoint(float dist, float val) : distance(dist), value(val) {}
@@ -26,6 +25,7 @@ private:
     DataPoint points[NUM];
     float slopes[NUM - 1];
     float intercepts[NUM - 1];
+    int size = 0;
 
 public:
     void addPoint(float distance, float value);

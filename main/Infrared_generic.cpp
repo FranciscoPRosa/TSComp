@@ -91,7 +91,7 @@ int InfraredSensor::getValue() const {
 // Calculate distance based on the measured sensor value
 void InfraredSensor::calculateDistance() {
     int valueFinal = offsetCurve.getDistance(sensorValue+offsetColor);
-    distanceMeas = curveLUT.getDistance(valueFinal);
+    distanceMeas = curveLUT.getDistance(sensorValue);
 }
 
 // Get the calculated distance
