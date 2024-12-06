@@ -5,57 +5,57 @@ InfraredSensor::InfraredSensor(int pin)
     : voltPin(pin), sensorVolt(0), sensorValue(0), distanceMeas(0), offsetColor(0) {
     // initialization of the values for the curve
     // if change is needed cut or add the necessary values
-    curveLUT.addPoint(0, 986);
-    curveLUT.addPoint(1, 964);
-    curveLUT.addPoint(2, 633);
-    curveLUT.addPoint(3, 474);
-    curveLUT.addPoint(4, 361);
-    curveLUT.addPoint(5, 299);
-    curveLUT.addPoint(6, 257);
-    curveLUT.addPoint(7, 236);
-    curveLUT.addPoint(8, 220);
-    curveLUT.addPoint(9, 209);
-    curveLUT.addPoint(10, 194);
-    curveLUT.addPoint(12, 179);
-    curveLUT.addPoint(16, 163);
-    curveLUT.addPoint(20, 155);
-    curveLUT.calculateSlopesAndIntercepts();
+    arr[0].addPoint(0, 997);
+    arr[0].addPoint(1, 719);
+    arr[0].addPoint(2, 443);
+    arr[0].addPoint(3, 289);
+    arr[0].addPoint(4, 203);
+    arr[0].addPoint(5, 157);
+    arr[0].addPoint(6, 131);
+    arr[0].addPoint(7, 109);
+    arr[0].addPoint(8, 97);
+    arr[0].addPoint(9, 86);
+    arr[0].addPoint(10, 78);
+    arr[0].addPoint(12, 68);
+    arr[0].addPoint(16, 57);
+    arr[0].addPoint(20, 52);
+    arr[0].calculateSlopesAndIntercepts();
     // using Cleaver (Metal) for the first approximation
     // Distances taken for the curve: 0,1,2,3,4,5,8,10,12,16,20
-    colorOffset.addPoint(0, 980);
-    colorOffset.addPoint(1, 645);
-    colorOffset.addPoint(2, 450);
-    colorOffset.addPoint(3, 328);
-    colorOffset.addPoint(4, 273);
-    colorOffset.addPoint(5, 236);
-    colorOffset.addPoint(6, 213);
-    colorOffset.addPoint(7, 197);
-    colorOffset.addPoint(8, 185);
-    colorOffset.addPoint(9, 176);
-    colorOffset.addPoint(10, 171);
-    colorOffset.addPoint(12, 162);
-    colorOffset.addPoint(16, 152);
-    colorOffset.addPoint(20, 147);
-    colorOffset.calculateSlopesAndIntercepts();
+    arr[1].addPoint(0, 997);
+    arr[1].addPoint(1, 562);
+    arr[1].addPoint(2, 351);
+    arr[1].addPoint(3, 233);
+    arr[1].addPoint(4, 168);
+    arr[1].addPoint(5, 134);
+    arr[1].addPoint(6, 111);
+    arr[1].addPoint(7, 97);
+    arr[1].addPoint(8, 84);
+    arr[1].addPoint(9, 77);
+    arr[1].addPoint(10, 71);
+    arr[1].addPoint(12, 63);
+    arr[1].addPoint(16, 55);
+    arr[1].addPoint(20, 52);
+    arr[1].calculateSlopesAndIntercepts();
 
     // Black plastic for the other calibration curve
-    blackOffset.addPoint(0,246);
-    blackOffset.addPoint(1,199);
-    blackOffset.addPoint(2,177);
-    blackOffset.addPoint(3,163);
-    blackOffset.addPoint(4,156);
-    blackOffset.addPoint(5,150);
-    blackOffset.addPoint(6,147);
-    blackOffset.addPoint(7,145);
-    blackOffset.addPoint(8,143);
-    blackOffset.addPoint(9,142);
-    blackOffset.addPoint(10,141);
-    blackOffset.addPoint(12,139);
-    blackOffset.addPoint(16,138);
-    blackOffset.addPoint(20,137);
-    blackOffset.calculateSlopesAndIntercepts();
+    arr[2].addPoint(0, 121);
+    arr[2].addPoint(1, 82);
+    arr[2].addPoint(2, 64);
+    arr[2].addPoint(3, 56);
+    arr[2].addPoint(4, 51);
+    arr[2].addPoint(5, 49);
+    arr[2].addPoint(6, 47);
+    arr[2].addPoint(7, 46);
+    arr[2].addPoint(8, 45);
+    arr[2].addPoint(9, 45);
+    arr[2].addPoint(10, 44);
+    arr[2].addPoint(12, 44);
+    arr[2].addPoint(16, 43);
+    arr[2].addPoint(20, 42);
+    arr[2].calculateSlopesAndIntercepts();
 
-    offsetCurve = &curveLUT;
+    offsetCurve = &arr[0];
 }
 
 InfraredSensor::~InfraredSensor() {}
@@ -96,25 +96,17 @@ float InfraredSensor::getDistanceMeasure() const {
 
 void InfraredSensor::updateOffset(float usDistance){
     measure();
-    int ogValue = abs(curveLUT.getCorrValue(usDistance)-sensorValue);
-    int colorValue = abs(colorOffset.getCorrValue(usDistance)-sensorValue);
-    int blackValue = abs(blackOffset.getCorrValue(usDistance)-sensorValue);
 
-    if(min(ogValue,colorValue)==ogValue){
-        if(min(ogValue,blackValue)==ogValue){
-            offsetCurve = &curveLUT;
-            Serial.println("Using White!");
-        } else {
-            offsetCurve = &blackOffset;
-            Serial.println("Uaing Black!");
-        }
-    } else {
-        if(min(colorValue, blackValue)==colorValue){
-            offsetCurve = &colorOffset;
-            Serial.println("Uaing Color!");
-        } else {
-            offsetCurve = &blackOffset;
-            Serial.println("Uaing Black!");
-        }
-    }   
+    int min = 100000;
+    int selected_lut = 0;
+
+    for(int i = 0; i < NUM_LUTS; i++){
+      int aux = abs(arr[i].getCorrValue(usDistance)-sensorValue);
+      if(aux < min){
+        min = aux;
+        selected_lut = i;
+      }
+    }
+    Serial.print("Using: "); Serial.println(selected_lut);
+    offsetCurve = &arr[selected_lut];  
 }

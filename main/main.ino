@@ -11,7 +11,7 @@
 #define TRIG_PIN 9
 #define ECHO_PIN 2
 // BLE Server variables
-#define BLE 0
+#define BLE 1
 #define STATUS_LED LED_BUILTIN
 #define BLE_NAME "SensorSystemG4"
 #define BUFFER_SIZE 30
@@ -39,7 +39,7 @@ InfraredSensor sensor(INPUT_PIN);
 
 float compensateAngle(float distance){
   //return distance;
-  float angle = 0;
+  static float angle = 0;
   if(accel.accelerationAvailable()){
     accel.getAngle();
     angle = accel.calculateRoll();
@@ -50,6 +50,12 @@ float compensateAngle(float distance){
 float measure(){
   float distanceIR = 0, distanceUSS = 0;
 
+  static float angle = 0;
+  if(accel.accelerationAvailable()){
+    accel.getAngle();
+    angle = accel.calculateRoll();
+  }
+
   distanceUSS = ultrasonic.getDistance();
 
   if(distanceUSS < 4.2 && distanceUSS > 3.8) sensor.updateOffset(distanceUSS);
@@ -58,7 +64,7 @@ float measure(){
   sensor.calculateDistance();
   distanceIR = sensor.getDistanceMeasure();
 
-  //Serial.println("USS: " + String(distanceUSS) + " | IR: " + String(distanceIR) + " | Mean: " + String(compensateAngle(distanceIR + distanceUSS) / 2.0));
+  Serial.println("USS: " + String(distanceUSS) + " | IR: " + String(distanceIR) + " | Angle: " + String(angle));
 
   if(distanceIR < 4.0) return compensateAngle(distanceIR);
   if(distanceUSS > 13.5) return compensateAngle(distanceUSS);
@@ -101,7 +107,7 @@ void loop() {
     distance = measure();
 
     sprintf(buffer, "%.2f cm", distance);
-    Serial.println(buffer);
+    //Serial.println(buffer);
     distanceCharacteristic.writeValue(buffer);
   }
 #else

@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include "LUT.h"
 
+#define NUM_LUTS 3
+
 class InfraredSensor {
 private:
     int voltPin;
@@ -11,9 +13,7 @@ private:
     int sensorValue;
     float distanceMeas;
     int offsetColor;
-    LUT curveLUT;
-    LUT colorOffset;
-    LUT blackOffset;
+    LUT arr[NUM_LUTS];
     LUT *offsetCurve;
 
     static constexpr float VOLTAGE_REF = 3.3;
