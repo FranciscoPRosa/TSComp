@@ -15,7 +15,7 @@ UltrasonicSensor::UltrasonicSensor(int trig, int echo)
 
 // Send a pulse from the trigger pin
 void UltrasonicSensor::sendPulse() {
-    sent = 1;
+    sent = 1;                       // Set the sent flag
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
     digitalWrite(trigPin, HIGH);
@@ -26,15 +26,16 @@ void UltrasonicSensor::sendPulse() {
 // Static ISR wrapper to access class methods
 void UltrasonicSensor::echoISRWrapper() {
     if (instance) {
+        // If the echo pin is high, start the timer
         if (digitalRead(instance->echoPin) == HIGH) {
             instance->startTime = micros();
+        // If the echo pin is low, stop the timer and calculate the duration
         } else {
           if(sent){
             sent = 0;
             instance->endTime = micros();
             unsigned long duration = instance->endTime - instance->startTime;
-            instance->sendPulse();
-
+            instance->sendPulse(); // Start the next pulse
             distArr[distIndex] = duration;
             distIndex++; distIndex %= USS_MEANS;
           }
@@ -47,7 +48,7 @@ void UltrasonicSensor::begin() {
     pinMode(trigPin, OUTPUT);
     pinMode(echoPin, INPUT);
     attachInterrupt(digitalPinToInterrupt(echoPin), UltrasonicSensor::echoISRWrapper, CHANGE);
-    sendPulse();
+    sendPulse(); // Start the first pulse
 }
 
 // Get the latest distance measurement
