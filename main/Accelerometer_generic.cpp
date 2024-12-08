@@ -20,6 +20,7 @@ Accelerometer::~Accelerometer()
 {
 }
 
+// Initialization of the registers for reading 
 int Accelerometer::begin()
 {
     _i2c->_wire->begin();
@@ -60,6 +61,7 @@ void Accelerometer::setContinuousMode()
     continuousMode = true;
 }
 
+// Makes 4 reading to update the xyz coordinates, the final value is the average
 bool Accelerometer::getAngle()
 {
     int16_t data[3];
@@ -101,12 +103,13 @@ int Accelerometer::accelerationAvailable()
     return 0;
 }
 
-// Private helper functions
+// Calculates the angle estimation according to previous xyz readings
 float Accelerometer::calculateRoll()
 {
     return atan2(y.toFloat()/4, sqrt(x.toFloat()/4 * x.toFloat()/4 + z.toFloat()/4 * z.toFloat()/4)) * 180 / PI-offset;
 }
 
+// Private helper functions
 int Accelerometer::readRegister(uint8_t slaveAddress, uint8_t address)
 {
     return _i2c->readRegister(slaveAddress, address);

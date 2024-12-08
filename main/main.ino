@@ -31,6 +31,7 @@ BLEStringCharacteristic distanceCharacteristic("19B10001-E8F2-537E-4F6C-D104768A
 UltrasonicSensor ultrasonic(TRIG_PIN, ECHO_PIN);
 
 // Accelerometer Object
+// Since the Model used is the Arduino 33 Nano BLE, it must be Wire1 instead of Wire only
 i2c i2cObj(Wire1); // Create i2c object with default Wire instance
 Accelerometer accel(i2cObj); // Pass i2c object to Accelerometer
 
