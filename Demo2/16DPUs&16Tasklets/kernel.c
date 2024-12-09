@@ -20,8 +20,8 @@ int __dma_aligned wram_output[ROWS];
 BARRIER_INIT(read_barrier, NR_TASKLETS);
 BARRIER_INIT(write_barrier, NR_TASKLETS);
 
-void matrix_matrix_multiply(int *matrix1, int *matrix2, int *output, int nrows, int ncols, int same_dim){
-    for(int i=0;i<nrows;i++){
+void matrix_matrix_multiply(int *matrix1, int *matrix2, int *output, int nrows, int col, int same_dim){
+    /*for(int i=0;i<nrows;i++){
         for(int j=0;j<ncols;j++){
             int accumulator=0;
             for(int k=0;k<same_dim;k++){
@@ -29,7 +29,13 @@ void matrix_matrix_multiply(int *matrix1, int *matrix2, int *output, int nrows, 
             }
             output[i*16+j]=accumulator;
         }
+    }*/
+    
+    int accumulator=0, i = 0, j = col;
+    for(int k=0;k<same_dim;k++){
+        accumulator += matrix1[i*16+k]*matrix2[k*16+j];
     }
+    output[i*16+j]=accumulator;
 }
 
 int main(){   
@@ -46,9 +52,8 @@ int main(){
     // Synchronize all tasklets before computation
     barrier_wait(&read_barrier);
 
-    // Matrix multiplication (each DPU tasklets is responsible for 1 element per row)
-    matrix_matrix_multiply(wram_matrix1, wram_matrix2, wram_output, 1, 16, 16);
-
+    // Matrix multiplication (each DPU tasklets is responsible for 1 row & 1 col)
+    matrix_matrix_multiply(wram_matrix1, wram_matrix2, wram_output, 1, me(), 16);
     // Synchronize all tasklets after computation
     barrier_wait(&write_barrier);
 
