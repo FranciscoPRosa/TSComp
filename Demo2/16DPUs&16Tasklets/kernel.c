@@ -2,11 +2,14 @@
 #include <stdint.h>
 #include <defs.h>
 #include <barrier.h>
+#include <perfcounter.h>
 
 // Matrix size
 #define ROWS 16
 #define COLS 16
 #define NR_TASKLETS 16
+
+__host uint32_t nb_cycles;
 
 int __mram_noinit mram_matrix1[ROWS];
 int __mram_noinit mram_matrix2[ROWS*COLS];
@@ -33,7 +36,7 @@ void matrix_matrix_multiply(int *matrix1, int *matrix2, int *output, int nrows, 
 }
 
 int main(){   
-
+    perfcounter_config(COUNT_CYCLES, true);
     int tasklet_id = me();
 
     // Tasklet 0 reads data from MRAM to WRAM
@@ -54,6 +57,7 @@ int main(){
 
     // Tasklet 0 writes the values back to the mram buffers
     if (tasklet_id == 0) mram_write(wram_output, mram_output, sizeof(wram_output));
+    nb_cycles = perfcounter_get();
 
     return 0;
 }

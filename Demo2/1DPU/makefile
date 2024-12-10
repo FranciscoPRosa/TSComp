@@ -1,5 +1,5 @@
 all: kernel host.c
-	gcc -std=c99 -o host.o host.c `dpu-pkg-config --cflags --libs dpu`
+	gcc -std=c99 -o host host.c `dpu-pkg-config --cflags --libs dpu` -lrt
 
 kernel: kernel.c
 	dpu-upmem-dpurte-clang -o kernel kernel.c

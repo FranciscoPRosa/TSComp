@@ -2,6 +2,8 @@
 #include <dpu.h>
 #include <dpu_log.h>
 #include <stdio.h>
+#include <time.h>
+#define _POSIX_C_SOURCE 199309L
 
 #ifndef DPU_BINARY
 #define DPU_BINARY "./kernel"
@@ -58,8 +60,11 @@ int main(){
     DPU_ASSERT(dpu_launch(set, DPU_SYNCHRONOUS));
 
     // Receive the required data from the DPUs
+    uint32_t nb_cycles, clocks_per_sec;
     DPU_FOREACH(set, dpu) {
         DPU_ASSERT(dpu_copy_from(dpu, "mram_output", 0, output, sizeof(output)));
+        DPU_ASSERT(dpu_copy_from(dpu, "nb_cycles", 0, &nb_cycles, sizeof(nb_cycles)));
+        DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(clocks_per_sec)));
     }
 
     for(int i=0;i<16;i++){
@@ -95,6 +100,9 @@ int main(){
     printf("\n");
 
     printf("Errors:%d out of 256\n",errors);
+
+    printf("DPU cycles: %u\n", nb_cycles);
+    printf("DPU time: %.2e secs.\n", (double)nb_cycles / clocks_per_sec);
 
     dpu_free(set);
 

@@ -71,6 +71,13 @@ int main(){
     }
     DPU_ASSERT(dpu_push_xfer(set, DPU_XFER_FROM_DPU, "mram_output", 0, sizeof(matrix1)/nr_dpus, DPU_XFER_DEFAULT));
 
+    // Getting the times
+    uint32_t nb_cycles, clocks_per_sec;
+    DPU_FOREACH(set, dpu) {
+        DPU_ASSERT(dpu_copy_from(dpu, "nb_cycles", 0, &nb_cycles, sizeof(nb_cycles)));
+        DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(clocks_per_sec)));
+    }
+
     for(int i=0;i<16;i++){
         for(int j=0;j<16;j++){
             int accumulator=0;
@@ -104,6 +111,9 @@ int main(){
     printf("\n");
 
     printf("Errors:%d out of 256\n",errors);
+
+    printf("DPU cycles: %u\n", nb_cycles);
+    printf("DPU time: %.2e secs.\n", (double)nb_cycles / clocks_per_sec);
 
     dpu_free(set);
 
